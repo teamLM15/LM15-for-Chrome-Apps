@@ -1,0 +1,106 @@
+/*
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+*/
+/* 
+    Created on : 2016/04/20, 23:15:11
+*/
+
+html{
+    color: #FFFFFF;
+    background-color: #000000;
+    overflow-y: visible;
+}
+
+body{
+    font-family: "\FF2D\FF33\20\30B4\30B7\30C3\30AF", monospace;
+    font-size: 100%;
+    font-weight: normal;
+    font-style: normal;
+    overflow-y: visible;
+}
+
+textarea {  
+    resize: none;  
+}  
+
+/* 選択時の枠の色を消す */
+input[type="text"]:focus {
+    border: 1px solid #ff9900;
+    outline: 0;
+}
+textarea:focus {
+    border: 1px solid #ff9900;
+    outline: 0;
+}
+
+#outputText
+{
+    color: white;
+    background-color: black;
+    width: 100%;
+    vertical-align: top;
+}
+
+/*入力テキストエリア*/
+#inputText{
+    color: white;
+    background-color: black;
+    border-color: black;
+    width: 100%;
+    height: 100%;
+    font-family: "\FF2D\FF33\20\30B4\30B7\30C3\30AF", monospace;
+    font-size: 100%;
+    font-weight: normal;
+    font-style: normal;
+    border-width: 0;
+    padding: 0;
+}
+
+#consoleText{
+    min-width: 0px;
+}
+
+table#inputTable{
+    width: 100%;
+    border-collapse: collapse;
+    border:0px;
+}
+
+#footer{
+    height: 100%;
+    width: 100%;
+}
+
+td#prompt{
+    width: 0.5em;
+    color: white;
+    border: none;
+    vertical-align: top;
+}
+
+/* 点滅 */
+.blinking{
+    -webkit-animation:blink 0.5s ease-in-out infinite alternate;
+    -moz-animation:blink 0.5s ease-in-out infinite alternate;
+    animation:blink 0.5s ease-in-out infinite alternate;
+}
+@-webkit-keyframes blink{
+    0% {opacity:0;}
+    20% {opacity:0;}
+    20.1% {opacity:1;}
+    100% {opacity:1;}
+}
+@-moz-keyframes blink{
+    0% {opacity:0;}
+    20% {opacity:0;}
+    20.1% {opacity:1;}
+    100% {opacity:1;}
+}
+@keyframes blink{
+    0% {opacity:0;}
+    20% {opacity:0;}
+    20.1% {opacity:1;}
+    100% {opacity:1;}
+}

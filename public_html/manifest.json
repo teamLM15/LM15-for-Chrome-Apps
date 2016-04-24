@@ -1,0 +1,19 @@
+{
+ "name": "LM15 for Chrome Apps",
+ "description": "LM15は偏在する",
+ "version": "1",
+ "manifest_version": 2,
+ "app": {
+    "background": {
+        "scripts": [
+        	"js/background.js"
+        ],
+        "persistent": false
+    }
+ },
+ "permissions": [
+        "https://twitter.com/oauth/*",
+        "https://api.twitter.com/1.1/*",
+        "storage"
+ ]
+}
