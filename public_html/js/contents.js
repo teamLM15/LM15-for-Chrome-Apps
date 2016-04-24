@@ -20,27 +20,31 @@ $(document).ready(function () {
     judgeAuth();
 
     // キーボード押下時の処理
-    $("#inputText").keydown(function (e) {
+    $("#inputText").keyup(function (e) {
         if (e.keyCode === 13) {
             if ($("#consoleText").html() === PIN_STR) {
                 authPinTxt($("#inputText").val());
                 // 認証時のoutputTextはajaxのsuccessで行う。
             } else {
-                if($("#inputText").val() === '#clear'){
-                    chrome.storage.sync.clear(function(){});
+//                投稿文字列を一旦退避
+                var postStr = $.trim($("#inputText").val());
+
+//                一応これはデバッグ用
+                if (postStr === '#clear') {
+                    chrome.storage.sync.clear(function () {});
                     return;
                 }
-                doPost($("#inputText").val());
-                $("#outputText").html(createOutputStr());
                 $("#inputText").val("");
+                doPost(postStr);
+                $("#outputText").html(createOutputStr(postStr));
                 $("#consoleText").html(">");
             }
-            
+
         }
     });
-    
+
 //    フッター部フォーカス時の処理
-    $("#footer").click(function (){
+    $("#footer").click(function () {
         // テキストボックスにフォーカスを切り替える
         $("#inputText").focus();
     });
@@ -150,14 +154,14 @@ function authPinTxt(d) {
             // 取得したすべてのキーをマップに詰める
             chrome.storage.sync.set(twitterApiKey, function () {});
 
-            $("#outputText").html(createOutputStr());
+            $("#outputText").html(createOutputStr($("#inputText").val()));
             $("#inputText").val("");
             $("#consoleText").html(">");
         },
         error: function (a) {
             console.debug("status : " + a.status);
             console.debug("message : " + a.responseText);
-            createOutputStr();
+            createOutputStr($("#inputText").val());
             createConsoleStrOnly("Try again.");
             $("#inputText").val("");
         }
@@ -169,6 +173,14 @@ function authPinTxt(d) {
 // POST
 function doPost(d) {
     console.debug("postStr:" + d);
+
+    // 何も入力されていない場合はそのままリターン
+    if ($.trim(d).length === 0) {
+        createOutputStr(d);
+        createConsoleStrOnly("Post error.");
+        $("#inputText").val("");
+        return;
+    }
 
     var accessor = {
         consumerSecret: twitterApiKey.consumerSecret,
@@ -199,11 +211,11 @@ function doPost(d) {
         error: function (a) {
             console.debug("status : " + a.status);
             console.debug("message : " + a.responseText);
-            createOutputStr();
+            createOutputStr(d);
             createConsoleStrOnly("Post error.");
-            $("#inputText").val("");
         }
     };
+    $("#inputText").val("");
     $.ajax(options); // 送信
 
 }
@@ -230,10 +242,10 @@ function judgeAuth() {
 
 // outputStrに対してoutputStrとinputStrを組み合わせて出力
 // DOS窓に対してEnter押した時の処理と同様
-function createOutputStr() {
+function createOutputStr(inputStr) {
     $("#outputText").html($(
             "#outputText").html() +
-            createOutputTableStr($("#consoleText").html(), $("#inputText").val())
+            createOutputTableStr($("#consoleText").html(), inputStr)
             );
 }
 

@@ -104,3 +104,7 @@ td#prompt{
     20.1% {opacity:1;}
     100% {opacity:1;}
 }
+
+table.input {
+    height: 100%;
+}
