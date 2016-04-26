@@ -24,7 +24,9 @@ $(document).ready(function () {
     $("#inputText").keyup(function (e) {
         if (e.keyCode === 13) {
             if ($("#consoleText").html() === PIN_STR) {
-                authPinTxt($("#inputText").val());
+                var postStr = $.trim($("#inputText").val());
+                $("#inputText").val("");
+                authPinTxt(postStr);
                 // 認証時のoutputTextはajaxのsuccessで行う。
             } else {
 //                投稿文字列を一旦退避
@@ -37,11 +39,18 @@ $(document).ready(function () {
 
         }
     });
-
-//    フッター部フォーカス時の処理
-    $("#footer").click(function () {
-        // テキストボックスにフォーカスを切り替える
-        $("#inputText").focus();
+    $('#inputText').keydown(function(e) {
+        if (e.which == 13) {
+            return false;
+        }
+        }).bind('blur', function() {
+        // 貼りつけられたテキストの改行コードを削除
+        var $textarea = $(this),
+            text = $textarea.val(),
+            new_text = text.replace(/\n/g, "");
+        if (new_text != text) {
+            $textarea.val(new_text);
+        }
     });
 });
 
@@ -122,9 +131,9 @@ function authPinTxt(d) {
     var options = {
         type: message.method,
         url: target,
-        success: function (d) {
-            console.debug("accessToken:" + d);
-            var paramArry = d.split("&");
+        success: function (a) {
+            console.debug("accessToken:" + a);
+            var paramArry = a.split("&");
             console.debug("paramArry:" + paramArry);
             var oauthToken, oauthTokenSecret;
             for (var cnt = 0; cnt < paramArry.length; cnt++) {
@@ -143,19 +152,21 @@ function authPinTxt(d) {
 
             // 取得したすべてのキーをマップに詰める
             chrome.storage.sync.set(twitterApiKey, function () {});
-            $("#outputText").html(createOutputStr($("#inputText").val()));
+            createOutputStr(d);
             createConsoleStrOnly(NEW_ENTRY);
-            $("#inputText").val("");
             $("#consoleText").html(">");
+            $("#inputText").val("");
         },
         error: function (a) {
             console.debug("status : " + a.status);
             console.debug("message : " + a.responseText);
-            createOutputStr($("#inputText").val());
+            createOutputStr(d);
             createConsoleStrOnly("Try again.");
             $("#inputText").val("");
         }
     };
+    $("#inputText").val("");
+    $("#inputText").val(d);
     $.ajax(options); // 送信
 
 }
@@ -181,6 +192,7 @@ function doPost(d) {
             chrome.storage.sync.clear(function () {});
             createConsoleStrOnly("clear auth data.");
             $("#inputText").val("");
+            authInit();
             return;
         case '前回のラブライブ！':
             postStr = doLm15();
@@ -227,18 +239,18 @@ function doPost(d) {
 
 // 前回のラブライブ！
 function doLm15() {
-    var lm15words = {
-        "1": "ワーッハッハッハッハ！！",
-        "2": "（ｶﾞﾁﾝ!!）",
-        "3": "（グビグビグビグビ……）",
-        "4": "（ﾀﾞﾝ!!）",
-        "5": "前回のラブライブ！"
-    };
-    var str1 = lm15words[String(Math.round(Math.random() * 5))];
-    var str2 = lm15words[String(Math.round(Math.random() * 5))];
-    var str3 = lm15words[String(Math.round(Math.random() * 5))];
-    var str4 = lm15words[String(Math.round(Math.random() * 5))];
-    var str5 = lm15words[String(Math.round(Math.random() * 5))];
+    var lm15words = [
+        "ワーッハッハッハッハ！！",
+        "（ｶﾞﾁﾝ!!）",
+        "（グビグビグビグビ……）",
+        "（ﾀﾞﾝ!!）",
+        "前回のラブライブ！"
+    ];
+    var str1 = lm15words[Math.floor( Math.random() * lm15words.length )];
+    var str2 = lm15words[Math.floor( Math.random() * lm15words.length )];
+    var str3 = lm15words[Math.floor( Math.random() * lm15words.length )];
+    var str4 = lm15words[Math.floor( Math.random() * lm15words.length )];
+    var str5 = lm15words[Math.floor( Math.random() * lm15words.length )];
 
     return str1 + str2 + str3 + str4 + str5;
 }
