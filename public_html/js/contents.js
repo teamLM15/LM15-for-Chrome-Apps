@@ -1,9 +1,10 @@
-/* global OAuth */
+/* global OAuth, NEW_ENTRY */
 
 // 定数定義
 var OAUTH_TOKEN = "oauth_token=";
 var OAUTH_TOKEN_SECRET = "oauth_token_secret=";
-var PIN_STR = "[PIN]:";
+var PIN_STR = "[PIN]：";
+var NEW_ENTRY = "NEW ENTRY";
 
 var twitterApiKey = {
     "consumerKey": "JT7KQf8ChYIIYYiX2NVdJ4Dg5",
@@ -28,15 +29,9 @@ $(document).ready(function () {
             } else {
 //                投稿文字列を一旦退避
                 var postStr = $.trim($("#inputText").val());
-
-//                一応これはデバッグ用
-                if (postStr === '#clear') {
-                    chrome.storage.sync.clear(function () {});
-                    return;
-                }
                 $("#inputText").val("");
                 doPost(postStr);
-                $("#outputText").html(createOutputStr(postStr));
+//                 $("#outputText").html(createOutputStr(postStr));
                 $("#consoleText").html(">");
             }
 
@@ -104,11 +99,6 @@ function authInit() {
 function authPinTxt(d) {
     console.debug("authUrl:" + d);
 
-    // パラメータが7文字かつ数値でなければ無意味
-    if (!(d.length === 7 || $.isNumeric(d))) {
-        return;
-    }
-
     var accessor = {
         consumerSecret: twitterApiKey.consumerSecret,
         tokenSecret: twitterApiKey.requestTokenSecret
@@ -153,8 +143,8 @@ function authPinTxt(d) {
 
             // 取得したすべてのキーをマップに詰める
             chrome.storage.sync.set(twitterApiKey, function () {});
-
             $("#outputText").html(createOutputStr($("#inputText").val()));
+            createConsoleStrOnly(NEW_ENTRY);
             $("#inputText").val("");
             $("#consoleText").html(">");
         },
@@ -181,6 +171,21 @@ function doPost(d) {
         $("#inputText").val("");
         return;
     }
+    
+    // 投稿文字列と出力文字列が異なるケースがあるので退避
+    var postStr = d;
+
+    switch (postStr) {
+        case '#clear':
+            // 一応これはデバッグ用
+            chrome.storage.sync.clear(function () {});
+            createConsoleStrOnly("clear auth data.");
+            $("#inputText").val("");
+            return;
+        case '前回のラブライブ！':
+            postStr = doLm15();
+            break;
+    }
 
     var accessor = {
         consumerSecret: twitterApiKey.consumerSecret,
@@ -194,7 +199,7 @@ function doPost(d) {
             oauth_signature_method: "HMAC-SHA1",
             oauth_consumer_key: twitterApiKey.consumerKey,
             oauth_token: twitterApiKey.accessToken,
-            status: d
+            status: postStr
         }
     };
 
@@ -205,19 +210,37 @@ function doPost(d) {
     var options = {
         type: message.method,
         url: target,
-        success: function (d) {
-            console.debug("post:" + d);
+        success: function (a) {
+            console.debug("post:" + postStr);
         },
         error: function (a) {
             console.debug("status : " + a.status);
             console.debug("message : " + a.responseText);
-            createOutputStr(d);
             createConsoleStrOnly("Post error.");
         }
     };
     $("#inputText").val("");
+    createOutputStr(d);
     $.ajax(options); // 送信
 
+}
+
+// 前回のラブライブ！
+function doLm15() {
+    var lm15words = {
+        "1": "ワーッハッハッハッハ！！",
+        "2": "（ｶﾞﾁﾝ!!）",
+        "3": "（グビグビグビグビ……）",
+        "4": "（ﾀﾞﾝ!!）",
+        "5": "前回のラブライブ！"
+    };
+    var str1 = lm15words[String(Math.round(Math.random() * 5))];
+    var str2 = lm15words[String(Math.round(Math.random() * 5))];
+    var str3 = lm15words[String(Math.round(Math.random() * 5))];
+    var str4 = lm15words[String(Math.round(Math.random() * 5))];
+    var str5 = lm15words[String(Math.round(Math.random() * 5))];
+
+    return str1 + str2 + str3 + str4 + str5;
 }
 
 // ここで初回表示時の認証状態を判定する。
@@ -245,25 +268,13 @@ function judgeAuth() {
 function createOutputStr(inputStr) {
     $("#outputText").html($(
             "#outputText").html() +
-            createOutputTableStr($("#consoleText").html(), inputStr)
+            $("#consoleText").html() + inputStr + "<br>"
             );
 }
 
 // 注意文言とか出す時
 function createConsoleStrOnly(consoleText) {
     $("#outputText").html($(
-            "#outputText").html() +
-            "<table id='inputTable'><tbody><tr><td id='prompt'>" +
-            consoleText +
-            "</td></tr></tbody></table>"
+            "#outputText").html() + consoleText + "<br>"
             );
-}
-
-// 出力用テーブル文字列を生成する。
-function createOutputTableStr(consoleText, inputText) {
-    return "<table id='inputTable'><tbody><tr><td id='prompt'>" +
-            consoleText +
-            "</td><td>" +
-            inputText +
-            "</td></tr></tbody></table>";
 }

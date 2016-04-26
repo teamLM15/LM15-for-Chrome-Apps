@@ -108,3 +108,11 @@ td#prompt{
 table.input {
     height: 100%;
 }
+
+#inputParentDiv {
+    display: flex;
+}
+
+#inputTextDiv {
+    width: 100%;
+}
