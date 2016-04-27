@@ -15,6 +15,12 @@ var twitterApiKey = {
     "requestTokenSecret": ""
 };
 
+// ハッシュタグ文字列
+var _hashStr = "";
+// プロンプト文字列
+var _promStr = ">";
+
+
 $(document).ready(function () {
 
     // 認証状態判定
@@ -34,20 +40,20 @@ $(document).ready(function () {
                 $("#inputText").val("");
                 doPost(postStr);
 //                 $("#outputText").html(createOutputStr(postStr));
-                $("#consoleText").html(">");
+//                $("#consoleText").html(_promStr);
             }
 
         }
     });
-    $('#inputText').keydown(function(e) {
+    $('#inputText').keydown(function (e) {
         if (e.which == 13) {
             return false;
         }
-        }).bind('blur', function() {
+    }).bind('blur', function () {
         // 貼りつけられたテキストの改行コードを削除
         var $textarea = $(this),
-            text = $textarea.val(),
-            new_text = text.replace(/\n/g, "");
+                text = $textarea.val(),
+                new_text = text.replace(/\n/g, "");
         if (new_text != text) {
             $textarea.val(new_text);
         }
@@ -119,10 +125,13 @@ function authPinTxt(d) {
         parameters: {
             oauth_signature_method: "HMAC-SHA1",
             oauth_consumer_key: twitterApiKey.consumerKey,
-            oauth_token: twitterApiKey.requestToken,
-            oauth_verifier: d
+            oauth_token: "",
+            oauth_verifier: ""
         }
     };
+
+    message.parameters.oauth_token = twitterApiKey.requestToken;
+    message.parameters.oauth_verifier = d;
 
     OAuth.setTimestampAndNonce(message);
     OAuth.SignatureMethod.sign(message, accessor);
@@ -154,7 +163,7 @@ function authPinTxt(d) {
             chrome.storage.sync.set(twitterApiKey, function () {});
             createOutputStr(d);
             createConsoleStrOnly(NEW_ENTRY);
-            $("#consoleText").html(">");
+            $("#consoleText").html(_promStr);
             $("#inputText").val("");
         },
         error: function (a) {
@@ -163,6 +172,9 @@ function authPinTxt(d) {
             createOutputStr(d);
             createConsoleStrOnly("Try again.");
             $("#inputText").val("");
+            // 本来ならばPINの入れなおしで行けるはずだがエラーが返ってくるので
+            // 最初から認証し直す。
+            authInit();
         }
     };
     $("#inputText").val("");
@@ -182,7 +194,7 @@ function doPost(d) {
         $("#inputText").val("");
         return;
     }
-    
+
     // 投稿文字列と出力文字列が異なるケースがあるので退避
     var postStr = d;
 
@@ -195,8 +207,21 @@ function doPost(d) {
             authInit();
             return;
         case '前回のラブライブ！':
-            postStr = doLm15();
+            if (_hashStr.length <= 0){
+                postStr = doLm15();
+            }
             break;
+        case '#':
+            _hashStr = "";
+            $("#consoleText").html(_promStr);
+            $("#inputText").val("");
+            return;
+    }
+    // ハッシュタグ設定
+    if (postStr.indexOf('#') === 0) {
+        _hashStr = postStr;
+        $("#consoleText").html(_hashStr + _promStr);
+        return;
     }
 
     var accessor = {
@@ -211,7 +236,7 @@ function doPost(d) {
             oauth_signature_method: "HMAC-SHA1",
             oauth_consumer_key: twitterApiKey.consumerKey,
             oauth_token: twitterApiKey.accessToken,
-            status: postStr
+            status: postStr + " " + _hashStr
         }
     };
 
@@ -246,11 +271,11 @@ function doLm15() {
         "（ﾀﾞﾝ!!）",
         "前回のラブライブ！"
     ];
-    var str1 = lm15words[Math.floor( Math.random() * lm15words.length )];
-    var str2 = lm15words[Math.floor( Math.random() * lm15words.length )];
-    var str3 = lm15words[Math.floor( Math.random() * lm15words.length )];
-    var str4 = lm15words[Math.floor( Math.random() * lm15words.length )];
-    var str5 = lm15words[Math.floor( Math.random() * lm15words.length )];
+    var str1 = lm15words[Math.floor(Math.random() * lm15words.length)];
+    var str2 = lm15words[Math.floor(Math.random() * lm15words.length)];
+    var str3 = lm15words[Math.floor(Math.random() * lm15words.length)];
+    var str4 = lm15words[Math.floor(Math.random() * lm15words.length)];
+    var str5 = lm15words[Math.floor(Math.random() * lm15words.length)];
 
     return str1 + str2 + str3 + str4 + str5;
 }
@@ -271,7 +296,7 @@ function judgeAuth() {
         // アクセストークンが存在
         twitterApiKey.accessToken = r.accessToken;
         twitterApiKey.accessTokenSecret = r.accessTokenSecret;
-        $("#consoleText").html(">");
+        $("#consoleText").html(_promStr);
     });
 }
 

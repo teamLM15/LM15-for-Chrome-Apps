@@ -59,50 +59,7 @@ textarea:focus {
 }
 
 #consoleText{
-    min-width: 0px;
-}
-
-table#inputTable{
-    width: 100%;
-    border-collapse: collapse;
-    border:0px;
-}
-
-#footer{
-    height: 100%;
-    width: 100%;
-}
-
-td#prompt{
-    width: 0.5em;
-    color: white;
-    border: none;
-    vertical-align: top;
-}
-
-/* 点滅 */
-.blinking{
-    -webkit-animation:blink 0.5s ease-in-out infinite alternate;
-    -moz-animation:blink 0.5s ease-in-out infinite alternate;
-    animation:blink 0.5s ease-in-out infinite alternate;
-}
-@-webkit-keyframes blink{
-    0% {opacity:0;}
-    20% {opacity:0;}
-    20.1% {opacity:1;}
-    100% {opacity:1;}
-}
-@-moz-keyframes blink{
-    0% {opacity:0;}
-    20% {opacity:0;}
-    20.1% {opacity:1;}
-    100% {opacity:1;}
-}
-@keyframes blink{
-    0% {opacity:0;}
-    20% {opacity:0;}
-    20.1% {opacity:1;}
-    100% {opacity:1;}
+    width: auto;
 }
 
 table.input {
@@ -115,5 +72,5 @@ table.input {
 
 #inputTextDiv {
     width: 100%;
-    margin-left: 0.5em;
+    /* margin-left: 0.5em; */
 }
